@@ -346,30 +346,44 @@ the old cell view back</p>
             <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="k">this</span><span class="p">,</span> <span class="nx">options</span>
       
             <span class="nv">key = </span><span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">(</span><span class="s">&#39;ribs_view_&#39;</span><span class="p">)</span>
-            <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_registeredListViews</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span></pre></div></td></tr><tr id="section-37"><td class="docs"><div class="pilwrap"><a href="#section-37" class="pilcrow">&#182;</a></div><p>Construct internal components.</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="nv">els = </span><span class="nx">_</span><span class="p">.</span><span class="nx">map</span> <span class="nx">@renderOrder</span><span class="p">,</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="o">=&gt;</span>
-                <span class="nx">@</span><span class="p">[</span><span class="s">&quot;initialize</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]()</span> <span class="nx">unless</span> <span class="nx">@</span><span class="p">[</span><span class="s">&quot;suppress</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]</span>
+            <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_registeredListViews</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span></pre></div></td></tr><tr id="section-37"><td class="docs"><div class="pilwrap"><a href="#section-37" class="pilcrow">&#182;</a></div><p>Construct internal components (title, header, list etc.)</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="vi">@components = </span><span class="p">[]</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@renderOrder</span><span class="p">,</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nv">l = </span><span class="nx">t</span><span class="p">.</span><span class="nx">replace</span> <span class="sr">/^./</span><span class="p">,</span> <span class="s">&quot;$</span><span class="si">#{</span><span class="nx">t</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">toLowerCase</span><span class="p">()</span><span class="si">}</span><span class="s">&quot;</span>
+                <span class="nx">@</span><span class="p">[</span><span class="nx">l</span><span class="p">]</span> <span class="o">=</span> <span class="nx">@</span><span class="p">[</span><span class="s">&quot;initialize</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]()</span> <span class="nx">unless</span> <span class="nx">@</span><span class="p">[</span><span class="s">&quot;suppress</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]</span>
+                <span class="nx">@components</span><span class="p">.</span><span class="nx">push</span> <span class="nx">@</span><span class="p">[</span><span class="nx">l</span><span class="p">]</span> <span class="k">if</span> <span class="nx">l</span> <span class="k">of</span> <span class="nx">@</span>
 
-            <span class="k">super</span> <span class="nx">options</span>
-
-            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">els</span><span class="p">,</span> <span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="o">=&gt;</span>
-                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">el</span> <span class="k">if</span> <span class="nx">el</span></pre></div></td></tr><tr id="section-38"><td class="docs"><div class="pilwrap"><a href="#section-38" class="pilcrow">&#182;</a></div><p>Bind jump key.</p>
+            <span class="k">super</span> <span class="nx">options</span></pre></div></td></tr><tr id="section-38"><td class="docs"><div class="pilwrap"><a href="#section-38" class="pilcrow">&#182;</a></div><p>Bind jump key.</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">@jumpkey</span><span class="o">?</span>
                 <span class="nx">Ribs</span><span class="p">.</span><span class="nx">bindJumpKey</span> <span class="nx">@plural</span><span class="p">(),</span> <span class="nx">@jumpkey</span><span class="p">,</span> <span class="o">-&gt;</span>
                     <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">@jumpSelector</span><span class="p">).</span><span class="nx">focus</span><span class="p">()</span>
                 <span class="p">,</span> <span class="k">this</span>
+
+            <span class="nx">@</span><span class="kc">on</span> <span class="s">&#39;refresh&#39;</span><span class="p">,</span> <span class="nx">@refresh</span>
+            <span class="nx">@$el</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s">&#39;ribs&#39;</span><span class="p">)</span>
+
+            <span class="nx">@build</span><span class="p">()</span>
+        
+        <span class="nv">build: </span><span class="o">-&gt;</span>
+            <span class="nx">@$el</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
+
+            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@components</span><span class="p">,</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">t</span>
 
             <span class="vi">@_subviews = </span><span class="p">[]</span>
 
             <span class="k">if</span> <span class="nx">@collection</span><span class="o">?</span>
                 <span class="nx">@setCollection</span> <span class="nx">@collection</span>
 
-            <span class="nx">@</span><span class="kc">on</span> <span class="s">&#39;refresh&#39;</span><span class="p">,</span> <span class="nx">@refresh</span>
-            <span class="nx">@$el</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s">&#39;ribs&#39;</span><span class="p">)</span>
-
+        <span class="nv">render: </span><span class="o">-&gt;</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@_subviews</span><span class="p">,</span> <span class="nf">(view,i) -&gt;</span>
+                <span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
+            <span class="nx">@updateFooter</span> <span class="k">if</span> <span class="nx">@$footer</span>
+            <span class="nx">@updateHeader</span> <span class="k">if</span> <span class="nx">@$header</span>
+        
         <span class="nv">setCollection: </span><span class="nf">(collection)-&gt;</span>
             <span class="vi">@collection = </span><span class="nx">collection</span></pre></div></td></tr><tr id="section-39"><td class="docs"><div class="pilwrap"><a href="#section-39" class="pilcrow">&#182;</a></div><p>Update actions</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">_</span><span class="p">.</span><span class="nx">union</span><span class="p">(</span><span class="nx">@inlineActions</span><span class="p">,</span> <span class="nx">@batchActions</span><span class="p">),</span> <span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="o">=&gt;</span>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@allActions</span><span class="p">,</span> <span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="o">=&gt;</span>
                 <span class="nx">action</span><span class="p">.</span><span class="nx">setCollection</span> <span class="nx">@collection</span> <span class="k">if</span> <span class="nx">action</span><span class="o">?</span></pre></div></td></tr><tr id="section-40"><td class="docs"><div class="pilwrap"><a href="#section-40" class="pilcrow">&#182;</a></div><p>Unbind events</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">@collection</span><span class="p">.</span><span class="kc">off</span> <span class="s">&quot;selected deselected reset add remove&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="k">this</span></pre></div></td></tr><tr id="section-41"><td class="docs"><div class="pilwrap"><a href="#section-41" class="pilcrow">&#182;</a></div><p>Bind events to collection</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;add&quot;</span><span class="p">,</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span>
@@ -496,7 +510,7 @@ the old cell view back</p>
             <span class="k">if</span> <span class="nx">@collection</span><span class="p">.</span><span class="nx">url</span><span class="o">?</span>
                 <span class="nx">@collection</span><span class="p">.</span><span class="nx">fetch</span>
                     <span class="nv">success: </span><span class="o">=&gt;</span>
-                        <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;:first&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">focus</span><span class="p">()</span>
+                        <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item:first&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">focus</span><span class="p">()</span>
 
 
         <span class="nv">focusin : </span><span class="nf">(event) -&gt;</span>
@@ -521,15 +535,16 @@ the old cell view back</p>
         <span class="nv">initializeTitle: </span><span class="o">-&gt;</span> 
             <span class="nv">title = </span><span class="nx">@title</span> <span class="o">?</span> <span class="nx">@plural</span><span class="p">()</span>
             <span class="nv">title = </span><span class="nx">title</span><span class="p">.</span><span class="nx">call</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">title</span> <span class="k">instanceof</span> <span class="nb">Function</span>
-            <span class="vi">@$title = </span><span class="nx">$</span><span class="p">(</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">h1</span> <span class="p">{</span><span class="k">class</span><span class="o">:</span> <span class="s">&quot;title&quot;</span><span class="p">},</span> <span class="nx">title</span> <span class="p">)</span>
-            <span class="nx">@$title</span>
+            <span class="nv">$title = </span><span class="nx">$</span><span class="p">(</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">h1</span> <span class="p">{</span><span class="k">class</span><span class="o">:</span> <span class="s">&quot;title&quot;</span><span class="p">},</span> <span class="nx">title</span> <span class="p">)</span>
+            <span class="nx">$title</span>
         
         <span class="nv">initializeActions: </span><span class="o">-&gt;</span>
             
             <span class="vi">@batchActions = </span><span class="p">[]</span>
             <span class="vi">@inlineActions = </span><span class="p">[]</span>
+            <span class="vi">@allActions = </span><span class="p">[]</span>
 
-            <span class="vi">@$batchActions = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">ul</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;actions&quot;</span><span class="p">)</span>
+            <span class="nv">$batchActions = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">ul</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;actions&quot;</span><span class="p">)</span>
             </pre></div></td></tr><tr id="section-50"><td class="docs"><div class="pilwrap"><a href="#section-50" class="pilcrow">&#182;</a></div><p>populate @batchActions and @inlineActions with instance of
 <code>Ribs.Action</code> based on @actions</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@actions</span><span class="p">,</span> <span class="p">(</span><span class="nx">actionConfig</span><span class="p">)</span> <span class="o">=&gt;</span>
@@ -541,24 +556,30 @@ the old cell view back</p>
                 <span class="k">if</span> <span class="nx">action</span><span class="p">.</span><span class="nx">batch</span> <span class="o">isnt</span> <span class="kc">false</span>
                     <span class="nx">@batchActions</span><span class="p">.</span><span class="nx">push</span> <span class="nx">action</span>
                     <span class="nx">action</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
-                    <span class="nx">@$batchActions</span><span class="p">.</span><span class="nx">append</span> <span class="nx">action</span><span class="p">.</span><span class="nx">el</span>
+                    <span class="nx">$batchActions</span><span class="p">.</span><span class="nx">append</span> <span class="nx">action</span><span class="p">.</span><span class="nx">el</span>
+                <span class="nx">@allActions</span><span class="p">.</span><span class="nx">push</span> <span class="nx">action</span>
 
             <span class="k">if</span> <span class="nx">@batchActions</span><span class="p">.</span><span class="nx">length</span>
-                <span class="nx">@$batchActions</span>
+                <span class="nx">$batchActions</span>
             <span class="k">else</span>
                 <span class="kc">null</span>
         
         <span class="nv">initializeList: </span><span class="o">-&gt;</span>
-            <span class="vi">@$list = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">ul</span><span class="p">(</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;list&quot;</span><span class="p">))</span>
-            <span class="nx">@$list</span>
+            <span class="nv">$list = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">ul</span><span class="p">(</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;list&quot;</span><span class="p">))</span>
+            <span class="nx">$list</span>
         
         <span class="nv">addItem : </span><span class="nf">(model) -&gt;</span>
             <span class="k">if</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="o">::</span><span class="nx">isPrototypeOf</span><span class="p">(</span><span class="nx">@itemView</span><span class="o">::</span><span class="p">)</span>
                 <span class="nv">itemView = </span><span class="nx">@itemView</span>
             <span class="k">else</span>
                 <span class="nv">itemView = </span><span class="nx">@itemView</span><span class="p">(</span><span class="nx">model</span><span class="p">)</span>
-            <span class="nv">view = </span><span class="k">new</span> <span class="nx">itemView</span><span class="p">(</span> <span class="nv">model: </span><span class="nx">model</span><span class="p">,</span> <span class="nv">view: </span><span class="k">this</span> <span class="p">)</span>
-            <span class="nx">@$list</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">view</span><span class="p">.</span><span class="nx">el</span><span class="p">)</span>
+            <span class="nv">view = </span><span class="k">new</span> <span class="nx">itemView</span><span class="p">(</span> <span class="nv">model: </span><span class="nx">model</span><span class="p">,</span> <span class="nv">view: </span><span class="k">this</span> <span class="p">)</span></pre></div></td></tr><tr id="section-51"><td class="docs"><div class="pilwrap"><a href="#section-51" class="pilcrow">&#182;</a></div><p>Respect collection insertion order</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nv">idx = </span><span class="nx">@collection</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nx">@$list</span><span class="p">.</span><span class="nx">children</span><span class="p">().</span><span class="nx">size</span><span class="p">()</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="nx">idx</span><span class="p">]</span>
+                <span class="nx">@$list</span><span class="p">.</span><span class="nx">append</span> <span class="nx">view</span><span class="p">.</span><span class="nx">el</span>
+            <span class="k">else</span>
+                <span class="nx">@$list</span><span class="p">.</span><span class="nx">children</span><span class="p">(</span><span class="s">&quot;:nth-child(</span><span class="si">#{</span> <span class="nx">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="si">}</span><span class="s">)&quot;</span><span class="p">).</span><span class="nx">before</span> <span class="nx">view</span><span class="p">.</span><span class="nx">el</span>
+
             <span class="nx">view</span><span class="p">.</span><span class="nx">delegateEvents</span><span class="p">()</span>
             <span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span> <span class="k">if</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span> <span class="s">&quot;:visible&quot;</span>
             <span class="nx">@_subviews</span><span class="p">.</span><span class="nx">push</span> <span class="nx">view</span>
@@ -568,23 +589,21 @@ the old cell view back</p>
             <span class="vi">@_subviews = </span><span class="p">[]</span>
             <span class="nx">@$list</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
             <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;deselected&quot;</span>
-            <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span>
-
-        <span class="nv">get: </span><span class="nf">(id) -&gt;</span>
+            <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span></pre></div></td></tr><tr id="section-52"><td class="docs"><div class="pilwrap"><a href="#section-52" class="pilcrow">&#182;</a></div><p>Gets list item view by model ID</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">get: </span><span class="nf">(id) -&gt;</span>
             <span class="nx">_</span><span class="p">.</span><span class="nx">find</span> <span class="nx">@_subviews</span><span class="p">,</span> <span class="nf">(view) -&gt;</span>
-                <span class="nx">view</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">id</span> <span class="o">==</span> <span class="nx">id</span>
-
-        <span class="nv">render: </span><span class="o">-&gt;</span>
-            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@_subviews</span><span class="p">,</span> <span class="nf">(view,i) -&gt;</span>
-                <span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
+                <span class="nx">view</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">id</span> <span class="o">==</span> <span class="nx">id</span></pre></div></td></tr><tr id="section-53"><td class="docs"><div class="pilwrap"><a href="#section-53" class="pilcrow">&#182;</a></div><p>Gets list item view by CID</p>
+</td><td class="code"><div class="highlight"><pre>        <span class="nv">getByCid: </span><span class="nf">(cid) -&gt;</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">find</span> <span class="nx">@_subviews</span><span class="p">,</span> <span class="nf">(view) -&gt;</span>
+                <span class="nx">view</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">cid</span> <span class="o">==</span> <span class="nx">cid</span>
 
         <span class="nv">initializeHeader: </span><span class="o">-&gt;</span>
-            <span class="vi">@$header = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;header&quot;</span><span class="p">)</span>
+            <span class="nv">$header = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;header&quot;</span><span class="p">)</span>
 
             <span class="nx">unless</span> <span class="nx">@suppressToggle</span>
                 <span class="nv">toggle = </span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">input</span><span class="p">(</span><span class="nv">type: </span><span class="s">&quot;checkbox&quot;</span><span class="p">,</span> <span class="nv">tabindex: </span><span class="o">-</span><span class="mi">1</span> <span class="p">)</span>
                 <span class="nx">$</span><span class="p">(</span><span class="nx">toggle</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;checked&quot;</span><span class="p">,</span> <span class="s">&quot;checked&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nx">@selectedByDefault</span>
-                <span class="nx">@$header</span><span class="p">.</span><span class="nx">append</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span><span class="p">({</span><span class="k">class</span><span class="o">:</span><span class="s">&quot;toggle&quot;</span><span class="p">},</span> <span class="nx">toggle</span><span class="p">)</span>
+                <span class="nx">$header</span><span class="p">.</span><span class="nx">append</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span><span class="p">({</span><span class="k">class</span><span class="o">:</span><span class="s">&quot;toggle&quot;</span><span class="p">},</span> <span class="nx">toggle</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="nx">@displayAttributes</span><span class="o">?</span>
                 <span class="nv">attributes = </span><span class="nx">@displayAttributes</span>
@@ -594,15 +613,15 @@ the old cell view back</p>
             <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">attributes</span><span class="p">,</span> <span class="p">(</span><span class="nx">attribute</span><span class="p">)</span> <span class="o">=&gt;</span>
                 <span class="nv">label = </span><span class="nx">attribute</span><span class="p">.</span><span class="nx">label</span> <span class="o">?</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span>
                 <span class="nv">klass = </span><span class="nx">attribute</span><span class="p">.</span><span class="k">class</span> <span class="o">?</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span>
-                <span class="nx">@$header</span><span class="p">.</span><span class="nx">append</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span><span class="p">(</span>
+                <span class="nx">$header</span><span class="p">.</span><span class="nx">append</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span><span class="p">(</span>
                     <span class="p">{</span><span class="k">class</span><span class="o">:</span> <span class="nx">klass</span><span class="p">,</span> <span class="s">&quot;data-sort-by&quot;</span><span class="o">:</span> <span class="p">(</span><span class="nx">attribute</span><span class="p">.</span><span class="nx">sortField</span> <span class="o">or</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span><span class="p">)},</span> 
                     <span class="nx">label</span>
-                <span class="p">)</span></pre></div></td></tr><tr id="section-51"><td class="docs"><div class="pilwrap"><a href="#section-51" class="pilcrow">&#182;</a></div><p>sorting and minimizing/maximizing</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.maximize, .minimize&quot;</span><span class="p">).</span><span class="nx">click</span> <span class="o">=&gt;</span>
-                <span class="nx">@toggleVisibility</span><span class="p">()</span></pre></div></td></tr><tr id="section-52"><td class="docs"><div class="pilwrap"><a href="#section-52" class="pilcrow">&#182;</a></div><p>put arrow on default sorted by</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by=</span><span class="si">#{</span><span class="nx">@collection</span><span class="p">.</span><span class="nx">sortingBy</span><span class="si">}</span><span class="s">]&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s">&quot; </span><span class="si">#{</span><span class="nx">@sortArrows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+                <span class="p">)</span></pre></div></td></tr><tr id="section-54"><td class="docs"><div class="pilwrap"><a href="#section-54" class="pilcrow">&#182;</a></div><p>sorting and minimizing/maximizing</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.maximize, .minimize&quot;</span><span class="p">).</span><span class="nx">click</span> <span class="o">=&gt;</span>
+                <span class="nx">@toggleVisibility</span><span class="p">()</span></pre></div></td></tr><tr id="section-55"><td class="docs"><div class="pilwrap"><a href="#section-55" class="pilcrow">&#182;</a></div><p>put arrow on default sorted by</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by=</span><span class="si">#{</span><span class="nx">@collection</span><span class="p">.</span><span class="nx">sortingBy</span><span class="si">}</span><span class="s">]&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s">&quot; </span><span class="si">#{</span><span class="nx">@sortArrows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
 
-            <span class="nx">@$header</span>
+            <span class="nx">$header</span>
 
         <span class="nv">updateHeader: </span><span class="o">-&gt;</span>
             <span class="nv">n = </span><span class="nx">@getNumSelected</span><span class="p">()</span>
@@ -617,9 +636,8 @@ the old cell view back</p>
                 <span class="p">.</span><span class="nx">css</span><span class="p">(</span><span class="s">&quot;opacity&quot;</span><span class="p">,</span> <span class="nx">opacity</span><span class="p">)</span>
 
         <span class="nv">initializeFooter: </span><span class="o">-&gt;</span>
-            <span class="vi">@$footer = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;footer&quot;</span><span class="p">)</span>
-            <span class="nx">@updateFooter</span><span class="p">()</span>
-            <span class="nx">@$footer</span>
+            <span class="nv">$footer = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;footer&quot;</span><span class="p">)</span>
+            <span class="nx">$footer</span>
 
         <span class="nv">updateFooter : </span><span class="o">-&gt;</span>
             <span class="nv">plural = </span><span class="nx">@getNumTotal</span><span class="p">()</span> <span class="o">isnt</span> <span class="mi">1</span>
@@ -697,15 +715,15 @@ the old cell view back</p>
         <span class="nv">enable : </span><span class="o">-&gt;</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="s">&quot;disabled&quot;</span><span class="p">)</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.button&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;tabindex&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    </pre></div></td></tr><tr id="section-53"><td class="docs"><div class="pilwrap"><a href="#section-53" class="pilcrow">&#182;</a></div><p>triggers activate on selected items</p>
+    </pre></div></td></tr><tr id="section-56"><td class="docs"><div class="pilwrap"><a href="#section-56" class="pilcrow">&#182;</a></div><p>triggers activate on selected items</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">triggerAction : </span><span class="nf">(event, listItem) -&gt;</span>
             <span class="k">if</span> <span class="o">not</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;.disabled&quot;</span><span class="p">)</span> <span class="o">and</span> <span class="nx">@allowed</span><span class="p">()</span>
-                <span class="nx">@activate</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">getSelected</span><span class="p">(),</span> <span class="nx">listItem</span><span class="p">)</span></pre></div></td></tr><tr id="section-54"><td class="docs"><div class="pilwrap"><a href="#section-54" class="pilcrow">&#182;</a></div><p>triggers activate on clicked item</p>
+                <span class="nx">@activate</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">getSelected</span><span class="p">(),</span> <span class="nx">listItem</span><span class="p">)</span></pre></div></td></tr><tr id="section-57"><td class="docs"><div class="pilwrap"><a href="#section-57" class="pilcrow">&#182;</a></div><p>triggers activate on clicked item</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">triggerActionInline : </span><span class="nf">(event, listItem) -&gt;</span>
             <span class="nx">unless</span> <span class="nx">listItem</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="o">is</span> <span class="s">&quot;.disabled&quot;</span>
                 <span class="nx">@activate</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="p">[</span><span class="nx">listItem</span><span class="p">.</span><span class="nx">model</span><span class="p">],</span> <span class="nx">listItem</span><span class="p">)</span>
     
-        <span class="nv">keypressedHere : </span><span class="nf">(event) -&gt;</span></pre></div></td></tr><tr id="section-55"><td class="docs"><div class="pilwrap"><a href="#section-55" class="pilcrow">&#182;</a></div><p>activate on <return></p>
+        <span class="nv">keypressedHere : </span><span class="nf">(event) -&gt;</span></pre></div></td></tr><tr id="section-58"><td class="docs"><div class="pilwrap"><a href="#section-58" class="pilcrow">&#182;</a></div><p>activate on <return></p>
 </td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">13</span>
                 <span class="nx">@triggerAction</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">false</span>
@@ -739,7 +757,7 @@ the old cell view back</p>
 
             <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">).</span><span class="nx">html</span> <span class="nx">label</span>
             <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">).</span><span class="nx">attr</span> <span class="s">&quot;title&quot;</span><span class="p">,</span> <span class="nx">@label</span>
-            <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">)</span></pre></div></td></tr><tr id="section-56"><td class="docs"><div class="pilwrap"><a href="#section-56" class="pilcrow">&#182;</a></div><p>renders an independent (rendered and bound)</p>
+            <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">)</span></pre></div></td></tr><tr id="section-59"><td class="docs"><div class="pilwrap"><a href="#section-59" class="pilcrow">&#182;</a></div><p>renders an independent (rendered and bound)</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">renderInline: </span><span class="nf">(listItem) -&gt;</span>
             <span class="nv">btn = </span><span class="nx">@drawButton</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nx">listItem</span><span class="p">)</span>
             <span class="nx">btn</span><span class="p">.</span><span class="nx">addClass</span> <span class="s">&quot;inline&quot;</span>
@@ -758,7 +776,7 @@ the old cell view back</p>
             <span class="k">if</span> <span class="nx">label</span> <span class="o">is</span> <span class="nx">new_label</span>
                 <span class="nv">new_label = </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">label</span><span class="si">}</span><span class="s"> &lt;span class=&#39;hotkey&#39;&gt;[&lt;strong&gt;</span><span class="si">#{</span><span class="nx">char</span><span class="si">}</span><span class="s">&lt;/strong&gt;]&lt;/span&gt;&quot;</span>
             <span class="nx">new_label</span>
-    </pre></div></td></tr><tr id="section-57"><td class="docs"><div class="pilwrap"><a href="#section-57" class="pilcrow">&#182;</a></div><p>utility method for accessing objects with dot syntax
+    </pre></div></td></tr><tr id="section-60"><td class="docs"><div class="pilwrap"><a href="#section-60" class="pilcrow">&#182;</a></div><p>utility method for accessing objects with dot syntax
 borrowed from mustache.js</p>
 </td><td class="code"><div class="highlight"><pre>    <span class="nv">walk_context = </span><span class="nf">(name, context) -&gt;</span>
         <span class="nv">path = </span><span class="nx">name</span><span class="p">.</span><span class="nx">split</span> <span class="s">&quot;.&quot;</span>
