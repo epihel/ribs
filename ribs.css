@@ -1,56 +1,51 @@
-/* ribs */
 .ribs {
     font-family: verdana, arial, sans-serif;
-    text-align: left;
+    text-align: left; 
 }
 .ribs.focussed .list {
-    /*border: 1px solid #bdf;*/
+    /*border: 1px solid #bdf; */ 
 }
-
-/* title */
 .ribs .title {
     font-size: 20pt;
     font-weight: normal;
     display: inline-block;
     margin: 0 20px 0 0;
     text-transform: capitalize;
-    /*font-variant: small-caps;*/
+    /*font-variant: small-caps; */ 
 }
 .ribs.minimized .list {
     height: 2px;
     overflow: hidden;
-    border: 1px solid #aaa;
+    border: 1px solid #aaaaaa; 
 }
-.ribs ul { 
+.ribs ul {
     padding: 0;
-    margin: 0;
+    margin: 0; 
 }
 .ribs li {
     list-style-type: none;
-    background: #eee;
     cursor: pointer;
     outline: none;
+    background: #eeeeee; 
 }
-
-/* actions/buttons */
 .ribs .actions {
     margin-bottom: 10px;
-    display: inline-block;
+    display: inline-block; 
 }
 .ribs .action {
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 10px; 
 }
 .ribs .button strong {
-    font-weight: normal;
+    font-weight: normal; 
 }
-.ribs.focussed .button strong {
+.ribs.focussed strong {
     font-weight: bold;
 }
 .ribs .button {
     border-radius: 4px;
     background: white;
-    border: 1px solid #aaa;
+    border: 1px solid #aaaaaa;
     padding: 2px 6px;
 }
 .ribs .button:focus {
@@ -58,18 +53,23 @@
     color: white;
     outline: none;
 }
-.ribs .disabled .button, .ribs .disabled .button:focus {
-    color: #ccc;
+.ribs .disabled .button {
+    color: #cccccc;
     background: white;
     cursor: default;
 }
-
-/* list */
-.ribs .list {
-    border: 1px solid #aaa;
-    border-bottom: 0 none;
+.ribs .disabled .button:focus {
+    color: #cccccc;
+    background: white;
+    cursor: default;
 }
-.ribs .item > div, .ribs .header > div {
+.ribs .list {
+    border: 1px solid #aaaaaa;
+    border-bottom: 0 none;
+    overflow-y: scroll;
+    overflow-x: auto;
+}
+.ribs .item div, .ribs .header div {
     padding: 6px 10px;
     display: inline-block;
     white-space: nowrap;
@@ -80,13 +80,17 @@
     overflow: hidden;
     white-space: nowrap;
     border-top: 1px solid white;
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid #aaaaaa;
+}
+.ribs .item > div:hover {
+    white-space: normal;
+    text-overflow: none;
 }
 .ribs .item:active {
-    background: #ddd;
+    background: #dddddd;
 }
 .ribs .item.selected:active {
-    background: #cde;
+    background: #ccddee;
 }
 .ribs .item:focus {
     border-left: 4px solid steelblue;
@@ -95,37 +99,32 @@
     padding-left: 6px;
 }
 .ribs .item.selected {
-    background: #def;
+    background: #ddeeff;
 }
 .ribs .list .button {
     font-size: 80%;
     padding: 1px 3px;
     margin: 2px;
 }
-
-/* header */
 .ribs .header {
-    border: 1px solid #aaa;
+    border: 1px solid #aaaaaa;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     border-bottom: 0 none;
-    background: #ddd;
+    background: #f8f8f8;
 }
-
-/* footer */
 .ribs .footer {
     padding: 6px 10px;
     text-align: right;
-    background: #ddd;
-    border: 1px solid #aaa;
+    background: #f8f8f8;
+    border: 1px solid #aaaaaa;
     border-top: 0 none;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     font-size: 80%;
-    color: #666;
+    color: #666666;
 }
 
-/* keyboard shortcuts overlay */
 .ribs-keyboard-shortcuts-overlay {
     position: absolute;
     text-align: left;
@@ -135,12 +134,12 @@
     margin-left: -300px;
     height: 400px;
     width: 600px;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0, 0, 0, 0.75);
     border: 1px solid white;
     border-radius: 10px;
-    -webkit-box-shadow: 0 0 40px 2px #000;
-    box-shadow: 0 0 40px 2px #000;
-    text-shadow: 0px 0px 3px #000;
+    -webkit-box-shadow: 0 0 40px 2px black;
+    box-shadow: 0 0 40px 2px black;
+    text-shadow: 0px 0px 3px black;
     overflow: auto;
     padding: 20px;
     color: white;
@@ -168,5 +167,15 @@
     width: 30px;
 }
 .ribs-keyboard-shortcuts-overlay .jump:first-letter {
-    color: #ccc;
+    color: #cccccc;
+}
+.item:hover .edit.button.inline {
+    display: inline;
+}
+.edit.button.inline {
+    display: none;
+}
+.ribs-editing {
+    background: white;
+    font-style: italic;
 }

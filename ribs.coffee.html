@@ -107,7 +107,7 @@ in an overlay.</p>
         <span class="nx">overlay</span></pre></div></td></tr><tr id="section-22"><td class="docs"><div class="pilwrap"><a href="#section-22" class="pilcrow">&#182;</a></div><p>Main jumpkey handler.
 TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> method.</p>
 </td><td class="code"><div class="highlight"><pre>    <span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="kc">on</span> <span class="s">&quot;keypress&quot;</span><span class="p">,</span> <span class="nf">(event) -&gt;</span>
-        <span class="nx">unless</span> <span class="nx">$</span><span class="p">(</span><span class="s">&quot;:focus&quot;</span><span class="p">).</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;input:text, textarea&quot;</span><span class="p">)</span>
+        <span class="nx">unless</span> <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">activeElement</span><span class="p">).</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;input:text, textarea&quot;</span><span class="p">)</span>
             <span class="nv">prefix = </span><span class="nx">Ribs</span><span class="p">.</span><span class="nx">_jumpPrefixKey</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="nx">prefix</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_readyToJump</span>
                 <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_poiseJump</span><span class="p">()</span>
@@ -138,16 +138,24 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             <span class="nx">@events</span> <span class="o">||=</span> <span class="p">{}</span>
             <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="nx">@events</span><span class="p">,</span> <span class="nx">@_ribsEvents</span>
 
+            <span class="vi">@view = </span><span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">view</span></pre></div></td></tr><tr id="section-26"><td class="docs"><div class="pilwrap"><a href="#section-26" class="pilcrow">&#182;</a></div><p>create cell views</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="vi">@listItemCells = </span><span class="p">[]</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">displayAttributes</span><span class="p">,</span> <span class="p">(</span><span class="nx">attribute</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nv">attribute = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">attribute</span><span class="p">)</span>
+                <span class="nv">attribute.view = </span><span class="nx">@</span>
+                <span class="nv">attribute.model = </span><span class="nx">options</span><span class="p">.</span><span class="nx">model</span>
+                <span class="nx">@listItemCells</span><span class="p">.</span><span class="nx">push</span> <span class="k">new</span> <span class="nx">Ribs</span><span class="p">.</span><span class="nx">ListItemCell</span> <span class="nx">attribute</span>
+
             <span class="k">super</span> <span class="nx">options</span>
 
-            <span class="vi">@view = </span><span class="nx">options</span><span class="p">.</span><span class="nx">view</span>
-
-            <span class="nx">@model</span><span class="p">.</span><span class="kc">on</span> <span class="s">&#39;change&#39;</span><span class="p">,</span> <span class="nx">@render</span><span class="p">,</span> <span class="k">this</span>
-            <span class="nx">@model</span><span class="p">.</span><span class="kc">on</span> <span class="s">&#39;remove&#39;</span><span class="p">,</span> <span class="nx">@remove</span><span class="p">,</span> <span class="k">this</span>
-            <span class="nx">@model</span><span class="p">.</span><span class="kc">on</span> <span class="s">&#39;stealfocus&#39;</span><span class="p">,</span> <span class="nx">@stealfocus</span><span class="p">,</span> <span class="k">this</span>
+            <span class="k">if</span> <span class="nx">@model</span><span class="o">?</span>
+                <span class="nx">@model</span><span class="p">.</span><span class="kc">on</span> <span class="s">&#39;change&#39;</span><span class="p">,</span> <span class="nx">@render</span><span class="p">,</span> <span class="k">this</span>
+                <span class="nx">@model</span><span class="p">.</span><span class="kc">on</span> <span class="s">&#39;remove&#39;</span><span class="p">,</span> <span class="nx">@remove</span><span class="p">,</span> <span class="k">this</span>
+                <span class="nx">@model</span><span class="p">.</span><span class="kc">on</span> <span class="s">&#39;stealfocus&#39;</span><span class="p">,</span> <span class="nx">@stealfocus</span><span class="p">,</span> <span class="k">this</span>
   
         <span class="nv">render : </span><span class="o">-&gt;</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nx">unless</span> <span class="nx">@model</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s">&quot;cid&quot;</span><span class="p">,</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">cid</span><span class="p">)</span>
 
             <span class="nx">unless</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">suppressToggle</span>
@@ -159,26 +167,18 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
                 <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span><span class="p">(</span>
                     <span class="p">{</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;toggle&quot;</span> <span class="p">},</span>
                     <span class="nx">toggle</span>
-                <span class="p">)</span>
-
-            <span class="nv">obj = </span><span class="nx">@model</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()</span>
-
-            <span class="nv">attributes = </span><span class="nx">@view</span><span class="p">.</span><span class="nx">displayAttributes</span> <span class="o">?</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="nf">(v,k) -&gt;</span> <span class="p">{</span> <span class="nv">field: </span><span class="nx">k</span> <span class="p">})</span>
-
-            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">attributes</span><span class="p">,</span> <span class="p">(</span><span class="nx">attribute</span><span class="p">)</span> <span class="o">=&gt;</span>
-
-                <span class="nv">klass = </span><span class="nx">attribute</span><span class="p">.</span><span class="k">class</span> <span class="o">?</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span>
-                <span class="nv">value = </span><span class="nx">walk_context</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span><span class="p">,</span> <span class="nx">obj</span>
-
-                <span class="k">if</span> <span class="s">&quot;map&quot;</span> <span class="k">of</span> <span class="nx">attribute</span>
-                    <span class="nv">value = </span><span class="nx">attribute</span><span class="p">.</span><span class="nx">map</span> <span class="nx">value</span>
-                
-                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span><span class="p">(</span><span class="k">class</span><span class="o">:</span> <span class="nx">klass</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span></pre></div></td></tr><tr id="section-26"><td class="docs"><div class="pilwrap"><a href="#section-26" class="pilcrow">&#182;</a></div><p>Add inline actions.</p>
+                <span class="p">)</span></pre></div></td></tr><tr id="section-27"><td class="docs"><div class="pilwrap"><a href="#section-27" class="pilcrow">&#182;</a></div><p>Render our individual cells</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@listItemCells</span><span class="p">,</span> <span class="p">(</span><span class="nx">cell</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">cell</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
+                <span class="nx">cell</span><span class="p">.</span><span class="nx">delegateEvents</span><span class="p">()</span>
+                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">cell</span><span class="p">.</span><span class="nx">el</span>
+            <span class="nv">obj = </span><span class="nx">@model</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()</span></pre></div></td></tr><tr id="section-28"><td class="docs"><div class="pilwrap"><a href="#section-28" class="pilcrow">&#182;</a></div><p>Add inline actions.</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">inlineActions</span><span class="p">,</span> <span class="p">(</span><span class="nx">action</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="o">=&gt;</span>
-                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">action</span><span class="p">.</span><span class="nx">renderInline</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+                <span class="nx">unless</span> <span class="nx">action</span><span class="p">.</span><span class="nx">filter</span><span class="o">?</span> <span class="o">and</span> <span class="nx">action</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">@model</span><span class="p">)</span> <span class="o">is</span> <span class="kc">false</span>
+                    <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">action</span><span class="p">.</span><span class="nx">renderInline</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
 
         <span class="nv">toggle : </span><span class="o">-&gt;</span>
-            <span class="nx">unless</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;.disabled&quot;</span><span class="p">)</span>
+            <span class="nx">unless</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;.disabled&quot;</span><span class="p">)</span> <span class="o">or</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">suppressToggle</span>
                 <span class="k">if</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;.selected&quot;</span><span class="p">)</span>
                     <span class="nx">@deselect</span><span class="p">()</span>
                 <span class="k">else</span>
@@ -188,11 +188,13 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             <span class="nx">e</span><span class="p">.</span><span class="nx">stopImmediatePropagation</span><span class="p">()</span>
 
         <span class="nv">select : </span><span class="nf">(event, options={})-&gt;</span>
+            <span class="k">return</span> <span class="k">if</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">suppressToggle</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">addClass</span> <span class="s">&quot;selected&quot;</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;input:checkbox&quot;</span><span class="p">).</span><span class="nx">attr</span> <span class="s">&quot;checked&quot;</span><span class="p">,</span> <span class="s">&quot;checked&quot;</span>
             <span class="nx">@model</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;selected&quot;</span> <span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">silent</span>
 
         <span class="nv">deselect : </span><span class="nf">(event, options={})-&gt;</span>
+            <span class="k">return</span> <span class="k">if</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">suppressToggle</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">removeClass</span> <span class="s">&quot;selected&quot;</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;input:checkbox&quot;</span><span class="p">).</span><span class="nx">removeAttr</span> <span class="s">&quot;checked&quot;</span>
             <span class="nx">@model</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;deselected&quot;</span> <span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">silent</span>
@@ -209,18 +211,103 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;tabindex&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
             <span class="nx">@model</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;disabled&quot;</span>
 
-        <span class="nv">keypressed : </span><span class="nf">(event) -&gt;</span> </pre></div></td></tr><tr id="section-27"><td class="docs"><div class="pilwrap"><a href="#section-27" class="pilcrow">&#182;</a></div><p><strong><return></strong> and <strong>x</strong> will toggle selection.</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="k">in</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">120</span><span class="p">]</span>
+        <span class="nv">remove: </span><span class="o">-&gt;</span>
+            <span class="nx">@deselect</span><span class="p">()</span>
+            <span class="k">super</span><span class="p">()</span>
+
+        <span class="nv">keypressed : </span><span class="nf">(event) -&gt;</span> </pre></div></td></tr><tr id="section-29"><td class="docs"><div class="pilwrap"><a href="#section-29" class="pilcrow">&#182;</a></div><p><strong><return></strong> and <strong>x</strong> will toggle selection.</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="k">in</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">120</span><span class="p">]</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">suppressToggle</span>
                 <span class="nx">@toggle</span><span class="p">()</span>
-            <span class="k">else</span> <span class="k">if</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">inlineActions</span><span class="p">.</span><span class="nx">length</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">inlineActions</span><span class="p">.</span><span class="nx">length</span>
                 <span class="nv">event.originalEvent.listItem = </span><span class="k">this</span>
 
         <span class="nv">stealfocus: </span><span class="o">-&gt;</span>
-            <span class="nx">@$el</span><span class="p">.</span><span class="nx">focus</span><span class="p">()</span></pre></div></td></tr><tr id="section-28"><td class="docs"><div class="pilwrap"><a href="#section-28" class="pilcrow">&#182;</a></div><p><code>Ribs.List</code> is the primary Ribs component.</p>
+            <span class="nx">@$el</span><span class="p">.</span><span class="nx">focus</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nx">Ribs</span><span class="p">.</span><span class="nx">ListItemCell</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span>
+  
+        <span class="nv">tagName : </span><span class="s">&quot;div&quot;</span>
+
+        <span class="nv">className: </span><span class="s">&quot;cell&quot;</span>
+    
+        <span class="nv">_ribsEvents:</span>
+            <span class="s">&#39;click .edit&#39;</span> <span class="o">:</span> <span class="s">&#39;edit&#39;</span>
+            <span class="s">&#39;blur .editableField&#39;</span> <span class="o">:</span> <span class="s">&#39;saveEditedField&#39;</span>
+  
+        <span class="nv">constructor : </span><span class="nf">(options) -&gt;</span>
+
+            <span class="nx">@events</span> <span class="o">||=</span> <span class="p">{}</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="nx">@events</span><span class="p">,</span> <span class="nx">@_ribsEvents</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="k">this</span><span class="p">,</span> <span class="nx">options</span> <span class="c1"># TODO remove this</span>
+            <span class="k">super</span> <span class="nx">options</span>
+            <span class="nx">@$el</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">@options</span><span class="p">.</span><span class="k">class</span> <span class="o">?</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">field</span><span class="p">)</span>
+            <span class="nx">@model</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;change change:</span><span class="si">#{</span><span class="nx">@options</span><span class="p">.</span><span class="nx">field</span><span class="si">}</span><span class="s">&quot;</span><span class="p">,</span> <span class="nx">@render</span><span class="p">,</span> <span class="k">this</span>
+
+        <span class="nv">renderableValue: </span><span class="nf">(nomap) -&gt;</span></pre></div></td></tr><tr id="section-30"><td class="docs"><div class="pilwrap"><a href="#section-30" class="pilcrow">&#182;</a></div><p>first check if it is a top level attribute</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nv">value = </span><span class="nx">@model</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">@options</span><span class="p">.</span><span class="nx">field</span><span class="p">)</span></pre></div></td></tr><tr id="section-31"><td class="docs"><div class="pilwrap"><a href="#section-31" class="pilcrow">&#182;</a></div><p>else see if it is a nested attribute</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">value</span> <span class="o">||=</span> <span class="nx">walk_context</span><span class="p">(</span><span class="nx">@options</span><span class="p">.</span><span class="nx">field</span><span class="p">,</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">())</span>
+            <span class="nv">value = </span><span class="nx">@options</span><span class="p">.</span><span class="nx">map</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">@model</span><span class="p">,</span> <span class="nx">@$el</span> <span class="k">if</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">map</span><span class="o">?</span> <span class="o">and</span> <span class="o">!</span><span class="nx">nomap</span>
+            <span class="nx">value</span>
+
+        <span class="nv">render: </span><span class="nf">()-&gt;</span>
+            <span class="nx">@$el</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span></pre></div></td></tr><tr id="section-32"><td class="docs"><div class="pilwrap"><a href="#section-32" class="pilcrow">&#182;</a></div><p>cells are rendered as html by default
+unless escape is set </p>
+</td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">escape</span>
+                <span class="nx">@$el</span><span class="p">.</span><span class="nx">text</span><span class="p">(</span><span class="nx">@renderableValue</span><span class="p">())</span>
+            <span class="k">else</span>
+                <span class="nx">@$el</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="nx">@renderableValue</span><span class="p">())</span>
+
+            <span class="k">if</span> <span class="nx">@editable</span>
+                <span class="nv">label = </span><span class="nx">@options</span><span class="p">.</span><span class="nx">label</span> <span class="o">?</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">field</span>
+                <span class="nv">editableEl = </span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">span</span> <span class="p">{</span>
+                    <span class="k">class</span><span class="o">:</span> <span class="s">&#39;edit button inline&#39;</span><span class="p">,</span> 
+                    <span class="nv">title: </span><span class="s">&quot;Edit </span><span class="si">#{</span><span class="nx">label</span><span class="si">}</span><span class="s">&quot;</span><span class="p">},</span> <span class="s">&#39;✎&#39;</span>
+                <span class="k">if</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">@options</span><span class="p">.</span><span class="nx">field</span><span class="p">)</span> <span class="k">in</span> <span class="p">[</span><span class="kc">null</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">]</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="nx">editableEl</span><span class="p">).</span><span class="nx">addClass</span><span class="p">(</span><span class="s">&#39;show&#39;</span><span class="p">)</span>
+                <span class="k">else</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="nx">editableEl</span><span class="p">).</span><span class="nx">removeClass</span><span class="p">(</span><span class="s">&#39;show&#39;</span><span class="p">)</span>
+
+                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">editableEl</span><span class="p">)</span> 
+
+            <span class="k">return</span> <span class="k">this</span>
+
+        <span class="nv">edit: </span><span class="o">-&gt;</span></pre></div></td></tr><tr id="section-33"><td class="docs"><div class="pilwrap"><a href="#section-33" class="pilcrow">&#182;</a></div><p>bind events for when it is editable
+and swap out the cell with any passed
+in element</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">editable</span></pre></div></td></tr><tr id="section-34"><td class="docs"><div class="pilwrap"><a href="#section-34" class="pilcrow">&#182;</a></div><p>default to a text field</p>
+</td><td class="code"><div class="highlight"><pre>                <span class="k">if</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">editable</span> <span class="k">instanceof</span> <span class="nb">Function</span>
+                    <span class="nv">editField = </span><span class="nx">$</span><span class="p">(</span><span class="nx">@options</span><span class="p">.</span><span class="nx">editable</span><span class="p">(</span><span class="nx">@renderableValue</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span> <span class="nx">@model</span><span class="p">))</span>
+                <span class="k">else</span>
+                    <span class="nv">editField = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">input</span><span class="p">(</span><span class="nv">type: </span><span class="s">&#39;text&#39;</span><span class="p">,</span> <span class="nv">value: </span><span class="nx">@renderableValue</span><span class="p">(</span><span class="kc">true</span><span class="p">)))</span>
+                <span class="nx">editField</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s">&quot;editableField&quot;</span><span class="p">)</span>
+                <span class="nx">@$el</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="nx">editField</span><span class="p">)</span>
+                <span class="nx">@delegateEvents</span><span class="p">()</span>
+                <span class="nx">editField</span><span class="p">.</span><span class="nx">focus</span><span class="p">()</span>
+                <span class="vi">@model.editing = </span><span class="kc">true</span>
+
+            <span class="k">return</span> <span class="kc">false</span>
+
+        <span class="nv">saveEditedField: </span><span class="nf">(e) -&gt;</span>
+            <span class="nv">field = </span><span class="nx">$</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">)</span>
+            <span class="nv">changeSet = </span><span class="p">{}</span>
+            <span class="nx">changeSet</span><span class="p">[</span><span class="nx">@options</span><span class="p">.</span><span class="nx">field</span><span class="p">]</span> <span class="o">=</span> <span class="nx">field</span><span class="p">.</span><span class="nx">val</span><span class="p">()</span>
+            <span class="vi">@model.changeSet = </span><span class="nx">changeSet</span>
+            <span class="k">try</span>
+                <span class="nx">@model</span><span class="p">.</span><span class="nx">save</span> <span class="nx">changeSet</span><span class="p">,</span>
+                    <span class="nv">wait: </span><span class="kc">true</span>
+            <span class="k">catch</span> <span class="nx">e</span>
+                <span class="nx">@render</span><span class="p">()</span></pre></div></td></tr><tr id="section-35"><td class="docs"><div class="pilwrap"><a href="#section-35" class="pilcrow">&#182;</a></div><p>BB won't save if nothing changed
+but we need to rerender to get 
+the old cell view back</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">unless</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">hasChanged</span><span class="p">()</span>
+                <span class="nx">@model</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s">&quot;change:</span><span class="si">#{</span><span class="nx">@options</span><span class="p">.</span><span class="nx">field</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+
+            <span class="vi">@model.editing = </span><span class="kc">false</span></pre></div></td></tr><tr id="section-36"><td class="docs"><div class="pilwrap"><a href="#section-36" class="pilcrow">&#182;</a></div><p><code>Ribs.List</code> is the primary Ribs component.</p>
 </td><td class="code"><div class="highlight"><pre>    <span class="k">class</span> <span class="nx">Ribs</span><span class="p">.</span><span class="nx">List</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span>
   
         <span class="nv">itemView: </span><span class="nx">Ribs</span><span class="p">.</span><span class="nx">ListItem</span>
-  
+
         <span class="nv">tagName: </span><span class="s">&quot;div&quot;</span>
     
         <span class="nv">itemName: </span><span class="s">&quot;item&quot;</span>
@@ -230,7 +317,9 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             <span class="s">&#39;focusin&#39;</span> <span class="o">:</span> <span class="s">&#39;focusin&#39;</span>
             <span class="s">&#39;focusout&#39;</span> <span class="o">:</span> <span class="s">&#39;focusout&#39;</span>
             <span class="s">&#39;click .header .toggle&#39;</span> <span class="o">:</span> <span class="s">&#39;toggleSelected&#39;</span>
-    
+            <span class="s">&#39;click .maximize .minimize&#39;</span> <span class="o">:</span> <span class="s">&#39;toggleVisibility&#39;</span>
+            <span class="s">&#39;click [data-sort-by]&#39;</span> <span class="o">:</span> <span class="s">&#39;sortByField&#39;</span>
+
         <span class="nv">jumpSelector : </span><span class="s">&quot;.list li:first&quot;</span>
     
         <span class="nv">focussed : </span><span class="kc">false</span>
@@ -257,82 +346,87 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="k">this</span><span class="p">,</span> <span class="nx">options</span>
       
             <span class="nv">key = </span><span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">(</span><span class="s">&#39;ribs_view_&#39;</span><span class="p">)</span>
-            <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_registeredListViews</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span>
-            
-            <span class="k">super</span> <span class="nx">options</span></pre></div></td></tr><tr id="section-29"><td class="docs"><div class="pilwrap"><a href="#section-29" class="pilcrow">&#182;</a></div><p>Construct internal components.</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@renderOrder</span><span class="p">,</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="o">=&gt;</span>
-                <span class="nx">@</span><span class="p">[</span><span class="s">&quot;initialize</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]()</span> <span class="nx">unless</span> <span class="nx">@</span><span class="p">[</span><span class="s">&quot;suppress</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]</span></pre></div></td></tr><tr id="section-30"><td class="docs"><div class="pilwrap"><a href="#section-30" class="pilcrow">&#182;</a></div><p>Bind jump key.</p>
+            <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_registeredListViews</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span></pre></div></td></tr><tr id="section-37"><td class="docs"><div class="pilwrap"><a href="#section-37" class="pilcrow">&#182;</a></div><p>Construct internal components.</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nv">els = </span><span class="nx">_</span><span class="p">.</span><span class="nx">map</span> <span class="nx">@renderOrder</span><span class="p">,</span> <span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">@</span><span class="p">[</span><span class="s">&quot;initialize</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]()</span> <span class="nx">unless</span> <span class="nx">@</span><span class="p">[</span><span class="s">&quot;suppress</span><span class="si">#{</span><span class="nx">t</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]</span>
+
+            <span class="k">super</span> <span class="nx">options</span>
+
+            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">els</span><span class="p">,</span> <span class="p">(</span><span class="nx">el</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">el</span> <span class="k">if</span> <span class="nx">el</span></pre></div></td></tr><tr id="section-38"><td class="docs"><div class="pilwrap"><a href="#section-38" class="pilcrow">&#182;</a></div><p>Bind jump key.</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">@jumpkey</span><span class="o">?</span>
                 <span class="nx">Ribs</span><span class="p">.</span><span class="nx">bindJumpKey</span> <span class="nx">@plural</span><span class="p">(),</span> <span class="nx">@jumpkey</span><span class="p">,</span> <span class="o">-&gt;</span>
                     <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">@jumpSelector</span><span class="p">).</span><span class="nx">focus</span><span class="p">()</span>
                 <span class="p">,</span> <span class="k">this</span>
 
+            <span class="vi">@_subviews = </span><span class="p">[]</span>
+
             <span class="k">if</span> <span class="nx">@collection</span><span class="o">?</span>
                 <span class="nx">@setCollection</span> <span class="nx">@collection</span>
 
+            <span class="nx">@</span><span class="kc">on</span> <span class="s">&#39;refresh&#39;</span><span class="p">,</span> <span class="nx">@refresh</span>
+            <span class="nx">@$el</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s">&#39;ribs&#39;</span><span class="p">)</span>
+
         <span class="nv">setCollection: </span><span class="nf">(collection)-&gt;</span>
-            <span class="vi">@collection = </span><span class="nx">collection</span></pre></div></td></tr><tr id="section-31"><td class="docs"><div class="pilwrap"><a href="#section-31" class="pilcrow">&#182;</a></div><p>Bind events to collection.</p>
+            <span class="vi">@collection = </span><span class="nx">collection</span></pre></div></td></tr><tr id="section-39"><td class="docs"><div class="pilwrap"><a href="#section-39" class="pilcrow">&#182;</a></div><p>Update actions</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">_</span><span class="p">.</span><span class="nx">union</span><span class="p">(</span><span class="nx">@inlineActions</span><span class="p">,</span> <span class="nx">@batchActions</span><span class="p">),</span> <span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">action</span><span class="p">.</span><span class="nx">setCollection</span> <span class="nx">@collection</span> <span class="k">if</span> <span class="nx">action</span><span class="o">?</span></pre></div></td></tr><tr id="section-40"><td class="docs"><div class="pilwrap"><a href="#section-40" class="pilcrow">&#182;</a></div><p>Unbind events</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nx">@collection</span><span class="p">.</span><span class="kc">off</span> <span class="s">&quot;selected deselected reset add remove&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="k">this</span></pre></div></td></tr><tr id="section-41"><td class="docs"><div class="pilwrap"><a href="#section-41" class="pilcrow">&#182;</a></div><p>Bind events to collection</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;add&quot;</span><span class="p">,</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span>
             <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;reset&quot;</span><span class="p">,</span> <span class="nx">@addAllItems</span><span class="p">,</span> <span class="k">this</span>
             <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;selected deselected reset add remove&quot;</span><span class="p">,</span> <span class="nx">@updateHeader</span><span class="p">,</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">@$header</span>
-            <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;selected deselected reset add remove&quot;</span><span class="p">,</span> <span class="nx">@updateFooter</span><span class="p">,</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">@$footer</span></pre></div></td></tr><tr id="section-32"><td class="docs"><div class="pilwrap"><a href="#section-32" class="pilcrow">&#182;</a></div><p>Add items from collection to view.</p>
+            <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;selected deselected reset add remove&quot;</span><span class="p">,</span> <span class="nx">@updateFooter</span><span class="p">,</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">@$footer</span></pre></div></td></tr><tr id="section-42"><td class="docs"><div class="pilwrap"><a href="#section-42" class="pilcrow">&#182;</a></div><p>Add items from collection to view.</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">@addAllItems</span><span class="p">()</span>
-
 
         <span class="nv">getSelected : </span><span class="o">-&gt;</span>
             <span class="k">return</span> <span class="p">[]</span> <span class="nx">unless</span> <span class="nx">@$list</span><span class="o">?</span>
-            <span class="nv">selected = </span><span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item.selected&quot;</span><span class="p">).</span><span class="nx">map</span> <span class="p">(</span><span class="nx">idx</span><span class="p">,</span> <span class="nx">el</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item.selected&quot;</span><span class="p">).</span><span class="nx">map</span> <span class="p">(</span><span class="nx">idx</span><span class="p">,</span> <span class="nx">el</span><span class="p">)</span> <span class="o">=&gt;</span>
                 <span class="nx">@collection</span><span class="p">.</span><span class="nx">getByCid</span> <span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">data</span><span class="p">(</span><span class="s">&quot;cid&quot;</span><span class="p">)</span>
-            <span class="nx">selected</span>
+
+        <span class="nv">getDeselected: </span><span class="o">-&gt;</span>
+            <span class="k">return</span> <span class="p">[]</span> <span class="nx">unless</span> <span class="nx">@$list</span><span class="o">?</span>
+            <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item:not(.selected)&quot;</span><span class="p">).</span><span class="nx">map</span> <span class="p">(</span><span class="nx">idx</span><span class="p">,</span> <span class="nx">el</span><span class="p">)</span> <span class="o">=&gt;</span>
+                <span class="nx">@collection</span><span class="p">.</span><span class="nx">getByCid</span> <span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">data</span><span class="p">(</span><span class="s">&quot;cid&quot;</span><span class="p">)</span>
 
         <span class="nv">getNumSelected: </span><span class="o">-&gt;</span>
             <span class="k">return</span> <span class="mi">0</span> <span class="nx">unless</span> <span class="nx">@$list</span><span class="o">?</span>
             <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item.selected&quot;</span><span class="p">).</span><span class="nx">size</span><span class="p">()</span>
+
+        <span class="nv">getNumDeselected: </span><span class="o">-&gt;</span>
+            <span class="k">return</span> <span class="mi">0</span> <span class="nx">unless</span> <span class="nx">@$list</span><span class="o">?</span>
+            <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item:not(.selected)&quot;</span><span class="p">).</span><span class="nx">size</span><span class="p">()</span>
 
         <span class="nv">getNumTotal: </span><span class="o">-&gt;</span>
             <span class="k">return</span> <span class="mi">0</span> <span class="nx">unless</span> <span class="nx">@collection</span><span class="o">?</span>
             <span class="nx">@collection</span><span class="p">.</span><span class="nx">length</span>
             
         <span class="nv">toggleSelected : </span><span class="nf">(event) -&gt;</span>
-
             <span class="k">if</span> <span class="nx">@selectedByDefault</span> <span class="o">is</span> <span class="kc">true</span> 
                 <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item.selected&quot;</span><span class="p">).</span><span class="nx">trigger</span> <span class="s">&quot;deselect&quot;</span><span class="p">,</span> <span class="nv">silent: </span><span class="kc">true</span>
                 <span class="vi">@selectedByDefault = </span><span class="kc">false</span>
-                <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;deselected&quot;</span>
+                <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;deselected&quot;</span>
             <span class="k">else</span>
                 <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item:not(.selected)&quot;</span><span class="p">).</span><span class="nx">trigger</span> <span class="s">&quot;select&quot;</span><span class="p">,</span> <span class="nv">silent: </span><span class="kc">true</span>
                 <span class="vi">@selectedByDefault = </span><span class="kc">true</span>
-                <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;selected&quot;</span>
+                <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;selected&quot;</span>
 
         <span class="nv">invertSelected : </span><span class="o">-&gt;</span>
             <span class="nv">toSelect = </span><span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;:not(.item.selected)&quot;</span><span class="p">)</span>
             <span class="nv">toDeselect = </span><span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item.selected&quot;</span><span class="p">)</span>
             <span class="nx">toSelect</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;select&quot;</span>
             <span class="nx">toDeselect</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;deselect&quot;</span>
-      
     
         <span class="nv">toggleVisibility : </span><span class="o">-&gt;</span>
-            <span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.maximize, .minimize&quot;</span><span class="p">).</span><span class="nx">toggle</span><span class="p">()</span></pre></div></td></tr><tr id="section-33"><td class="docs"><div class="pilwrap"><a href="#section-33" class="pilcrow">&#182;</a></div><p>Workaround for bug http://bugs.jqueryui.com/ticket/8113</p>
+            <span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.maximize, .minimize&quot;</span><span class="p">).</span><span class="nx">toggle</span><span class="p">()</span></pre></div></td></tr><tr id="section-43"><td class="docs"><div class="pilwrap"><a href="#section-43" class="pilcrow">&#182;</a></div><p>Workaround for bug http://bugs.jqueryui.com/ticket/8113</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">@$el</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span> <span class="nx">unless</span> <span class="nx">@$el</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">)</span><span class="o">?</span>
 
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">toggleClass</span> <span class="s">&quot;minimized&quot;</span><span class="p">,</span> <span class="mi">100</span>
 
-        <span class="nv">sortBy : </span><span class="nf">(field, old_field) -&gt;</span>
-
-            <span class="nv">re = </span><span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s">&quot; (</span><span class="si">#{</span><span class="nx">_</span><span class="p">.</span><span class="nx">values</span><span class="p">(</span><span class="nx">@sortArrows</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s">&quot;|&quot;</span><span class="p">)</span><span class="si">}</span><span class="s">)$|$&quot;</span><span class="p">)</span>
-            <span class="nv">dir = </span><span class="nx">@collection</span><span class="p">.</span><span class="nx">sortingDirection</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="o">?</span> <span class="mi">1</span>
-
-            <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s">&#39;sorted&#39;</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">dir</span><span class="p">)</span>
-            </pre></div></td></tr><tr id="section-34"><td class="docs"><div class="pilwrap"><a href="#section-34" class="pilcrow">&#182;</a></div><p>Remove arrows from previously sorted label.</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">old_field</span><span class="o">?</span>
-                <span class="nv">old_el = </span><span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by=&#39;</span><span class="si">#{</span><span class="nx">old_field</span><span class="si">}</span><span class="s">&#39;]&quot;</span><span class="p">)</span>
-                <span class="nv">old_label = </span><span class="nx">old_el</span><span class="p">.</span><span class="nx">html</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">re</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
-                <span class="nx">$</span><span class="p">(</span><span class="nx">old_el</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">old_label</span><span class="p">)</span>
-            </pre></div></td></tr><tr id="section-35"><td class="docs"><div class="pilwrap"><a href="#section-35" class="pilcrow">&#182;</a></div><p>Put arrows on currently sorted label.</p>
-</td><td class="code"><div class="highlight"><pre>            <span class="nv">el = </span><span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by=&#39;</span><span class="si">#{</span><span class="nx">field</span><span class="si">}</span><span class="s">&#39;]&quot;</span><span class="p">)</span>
-            <span class="nv">label = </span><span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">html</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">re</span><span class="p">,</span> <span class="s">&quot; </span><span class="si">#{</span><span class="nx">@sortArrows</span><span class="p">[</span><span class="nx">dir</span><span class="p">]</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
-            <span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">label</span><span class="p">)</span>
-            
+        <span class="nv">sortByField: </span><span class="nf">(event) -&gt;</span>
+            <span class="nv">field = </span><span class="nx">$</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;data-sort-by&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nx">field</span><span class="o">?</span>
+                <span class="nx">@sortCollectionBy</span> <span class="nx">field</span>
+      
         <span class="nv">sortCollectionBy: </span><span class="nf">(field) -&gt;</span>
 
             <span class="nv">old_field = </span><span class="nx">@collection</span><span class="p">.</span><span class="nx">sortingBy</span>
@@ -346,25 +440,44 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
 
             <span class="nv">dir = </span><span class="nx">@collection</span><span class="p">.</span><span class="nx">sortingDirection</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span>
 
-            <span class="k">return</span> <span class="k">if</span> <span class="nx">@collection</span><span class="p">.</span><span class="nx">remoteSort</span>
+            <span class="k">if</span> <span class="nx">@collection</span><span class="p">.</span><span class="nx">remoteSort</span>
+                <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&#39;remoteSort&#39;</span><span class="p">,</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">dir</span>
+            <span class="k">else</span>
+                <span class="vi">@collection.comparator = </span><span class="p">(</span><span class="nx">ma</span><span class="p">,</span><span class="nx">mb</span><span class="p">)</span><span class="o">=&gt;</span>
+                    <span class="nv">a = </span><span class="nx">walk_context</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">ma</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()</span>
+                    <span class="nv">b = </span><span class="nx">walk_context</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">mb</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()</span>
+                    <span class="k">return</span>  <span class="mi">0</span>     <span class="k">if</span> <span class="nx">a</span> <span class="o">is</span> <span class="nx">b</span>
+                    <span class="k">return</span> <span class="o">+</span><span class="mi">1</span><span class="o">*</span><span class="nx">dir</span> <span class="k">if</span> <span class="nx">a</span> <span class="o">&gt;</span> <span class="nx">b</span> <span class="o">or</span> <span class="o">not</span> <span class="nx">b</span><span class="o">?</span>
+                    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nx">dir</span> <span class="k">if</span> <span class="nx">a</span> <span class="o">&lt;</span> <span class="nx">b</span> <span class="o">or</span> <span class="o">not</span> <span class="nx">a</span><span class="o">?</span>
 
-            <span class="vi">@collection.comparator = </span><span class="p">(</span><span class="nx">ma</span><span class="p">,</span><span class="nx">mb</span><span class="p">)</span><span class="o">=&gt;</span>
-                <span class="nv">a = </span><span class="nx">walk_context</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">ma</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()</span>
-                <span class="nv">b = </span><span class="nx">walk_context</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">mb</span><span class="p">.</span><span class="nx">toJSON</span><span class="p">()</span>
-                <span class="k">return</span>  <span class="mi">0</span>     <span class="k">if</span> <span class="nx">a</span> <span class="o">is</span> <span class="nx">b</span>
-                <span class="k">return</span> <span class="o">+</span><span class="mi">1</span><span class="o">*</span><span class="nx">dir</span> <span class="k">if</span> <span class="nx">a</span> <span class="o">&gt;</span> <span class="nx">b</span> <span class="o">or</span> <span class="o">not</span> <span class="nx">b</span><span class="o">?</span>
-                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nx">dir</span> <span class="k">if</span> <span class="nx">a</span> <span class="o">&lt;</span> <span class="nx">b</span> <span class="o">or</span> <span class="o">not</span> <span class="nx">a</span><span class="o">?</span>
+                <span class="nx">@collection</span><span class="p">.</span><span class="nx">sort</span><span class="p">()</span>
 
-            <span class="nx">@collection</span><span class="p">.</span><span class="nx">sort</span><span class="p">()</span>
+                <span class="nx">@render</span><span class="p">()</span>
 
-            <span class="nx">@sortBy</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">old_field</span>
+            <span class="nx">@updateHeaderArrows</span> <span class="nx">field</span><span class="p">,</span> <span class="nx">old_field</span>
+
+        <span class="nv">updateHeaderArrows : </span><span class="nf">(field, old_field) -&gt;</span>
+
+            <span class="k">return</span> <span class="nx">unless</span> <span class="nx">@collection</span><span class="o">?</span>
+
+            <span class="nv">re = </span><span class="k">new</span> <span class="nb">RegExp</span><span class="p">(</span><span class="s">&quot; (</span><span class="si">#{</span><span class="nx">_</span><span class="p">.</span><span class="nx">values</span><span class="p">(</span><span class="nx">@sortArrows</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s">&quot;|&quot;</span><span class="p">)</span><span class="si">}</span><span class="s">)$|$&quot;</span><span class="p">)</span>
+            <span class="nv">dir = </span><span class="nx">@collection</span><span class="p">.</span><span class="nx">sortingDirection</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="o">?</span> <span class="mi">1</span>
+            </pre></div></td></tr><tr id="section-44"><td class="docs"><div class="pilwrap"><a href="#section-44" class="pilcrow">&#182;</a></div><p>Remove arrows from previously sorted label.</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">old_field</span><span class="o">?</span>
+                <span class="nv">old_el = </span><span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by=&#39;</span><span class="si">#{</span><span class="nx">old_field</span><span class="si">}</span><span class="s">&#39;]&quot;</span><span class="p">)</span>
+                <span class="nv">old_label = </span><span class="nx">old_el</span><span class="p">.</span><span class="nx">html</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">re</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+                <span class="nx">$</span><span class="p">(</span><span class="nx">old_el</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">old_label</span><span class="p">)</span>
+            </pre></div></td></tr><tr id="section-45"><td class="docs"><div class="pilwrap"><a href="#section-45" class="pilcrow">&#182;</a></div><p>Put arrows on currently sorted label.</p>
+</td><td class="code"><div class="highlight"><pre>            <span class="nv">el = </span><span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by=&#39;</span><span class="si">#{</span><span class="nx">field</span><span class="si">}</span><span class="s">&#39;]&quot;</span><span class="p">)</span>
+            <span class="nv">label = </span><span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">html</span><span class="p">()</span><span class="o">?</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">re</span><span class="p">,</span> <span class="s">&quot; </span><span class="si">#{</span><span class="nx">@sortArrows</span><span class="p">[</span><span class="nx">dir</span><span class="p">]</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="nx">$</span><span class="p">(</span><span class="nx">el</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">label</span><span class="p">)</span>
     
         <span class="nv">keypressed : </span><span class="nf">(event) -&gt;</span>
-            <span class="nx">unless</span> <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_readyToJump</span> <span class="o">or</span> <span class="nx">$</span><span class="p">(</span><span class="s">&quot;:focus&quot;</span><span class="p">).</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;input:text, textarea&quot;</span><span class="p">)</span>
+            <span class="nx">unless</span> <span class="nx">Ribs</span><span class="p">.</span><span class="nx">_readyToJump</span> <span class="o">or</span> <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">activeElement</span><span class="p">).</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;input:text, textarea&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">106</span> <span class="c1"># j</span>
-                    <span class="nx">$</span><span class="p">(</span><span class="s">&quot;:focus&quot;</span><span class="p">).</span><span class="nx">nextAll</span><span class="p">(</span><span class="s">&quot;.item:visible:not(.disabled):first&quot;</span><span class="p">).</span><span class="nx">focus</span><span class="p">()</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">activeElement</span><span class="p">).</span><span class="nx">nextAll</span><span class="p">(</span><span class="s">&quot;.item:visible:not(.disabled):first&quot;</span><span class="p">).</span><span class="nx">focus</span><span class="p">()</span>
                 <span class="k">else</span> <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">107</span> <span class="c1"># k</span>
-                    <span class="nx">$</span><span class="p">(</span><span class="s">&quot;:focus&quot;</span><span class="p">).</span><span class="nx">prevAll</span><span class="p">(</span><span class="s">&quot;.item:visible:not(.disabled):first&quot;</span><span class="p">).</span><span class="nx">focus</span><span class="p">()</span>
+                    <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">activeElement</span><span class="p">).</span><span class="nx">prevAll</span><span class="p">(</span><span class="s">&quot;.item:visible:not(.disabled):first&quot;</span><span class="p">).</span><span class="nx">focus</span><span class="p">()</span>
                 <span class="k">else</span> <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">74</span> <span class="c1"># J</span>
                     <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.item:last&quot;</span><span class="p">).</span><span class="nx">focus</span><span class="p">()</span>
                 <span class="k">else</span> <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">75</span> <span class="c1"># K</span>
@@ -373,37 +486,43 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
                     <span class="nx">@toggleVisibility</span><span class="p">()</span>
                 <span class="k">else</span> <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">88</span> <span class="c1"># X</span>
                     <span class="nx">@toggleSelected</span><span class="p">()</span>
-                <span class="k">else</span> <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">82</span> <span class="c1"># R</span></pre></div></td></tr><tr id="section-36"><td class="docs"><div class="pilwrap"><a href="#section-36" class="pilcrow">&#182;</a></div><p>refresh collection (from server)</p>
-</td><td class="code"><div class="highlight"><pre>                    <span class="k">if</span> <span class="nx">@collection</span><span class="p">.</span><span class="nx">url</span><span class="o">?</span>
-                        <span class="nx">@collection</span><span class="p">.</span><span class="nx">fetch</span>
-                            <span class="nv">success: </span><span class="o">=&gt;</span>
-                                <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;:first&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">focus</span><span class="p">()</span>
-                <span class="k">else</span></pre></div></td></tr><tr id="section-37"><td class="docs"><div class="pilwrap"><a href="#section-37" class="pilcrow">&#182;</a></div><p>let the actions know</p>
+                <span class="k">else</span> <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">82</span> <span class="c1"># R</span></pre></div></td></tr><tr id="section-46"><td class="docs"><div class="pilwrap"><a href="#section-46" class="pilcrow">&#182;</a></div><p>refresh collection (from server)</p>
+</td><td class="code"><div class="highlight"><pre>                    <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&#39;before:refresh&#39;</span>
+                    <span class="nx">@trigger</span> <span class="s">&#39;refresh&#39;</span>
+                <span class="k">else</span></pre></div></td></tr><tr id="section-47"><td class="docs"><div class="pilwrap"><a href="#section-47" class="pilcrow">&#182;</a></div><p>let the actions know</p>
 </td><td class="code"><div class="highlight"><pre>                    <span class="nx">@trigger</span> <span class="s">&quot;keypressed&quot;</span><span class="p">,</span> <span class="nx">event</span>
     
+        <span class="nv">refresh: </span><span class="o">-&gt;</span>
+            <span class="k">if</span> <span class="nx">@collection</span><span class="p">.</span><span class="nx">url</span><span class="o">?</span>
+                <span class="nx">@collection</span><span class="p">.</span><span class="nx">fetch</span>
+                    <span class="nv">success: </span><span class="o">=&gt;</span>
+                        <span class="nx">@$list</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;:first&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">focus</span><span class="p">()</span>
+
+
         <span class="nv">focusin : </span><span class="nf">(event) -&gt;</span>
             <span class="nx">unless</span> <span class="nx">@focussed</span>
                 <span class="vi">@focussed = </span><span class="kc">true</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">addClass</span> <span class="s">&quot;focussed&quot;</span>
-            <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;focusin&quot;</span>
+            <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;focusin&quot;</span>
     
         <span class="nv">focusout : </span><span class="nf">(event) -&gt;</span>
-            <span class="k">if</span> <span class="nx">@focussed</span></pre></div></td></tr><tr id="section-38"><td class="docs"><div class="pilwrap"><a href="#section-38" class="pilcrow">&#182;</a></div><p>need to delay to find the proper next document.activeElement</p>
+            <span class="k">if</span> <span class="nx">@focussed</span></pre></div></td></tr><tr id="section-48"><td class="docs"><div class="pilwrap"><a href="#section-48" class="pilcrow">&#182;</a></div><p>need to delay to find the proper next document.activeElement</p>
 </td><td class="code"><div class="highlight"><pre>                <span class="nx">setTimeout</span> <span class="o">=&gt;</span>
                     <span class="k">if</span> <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">activeElement</span><span class="p">).</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">0</span>
                         <span class="nx">@$el</span><span class="p">.</span><span class="nx">removeClass</span> <span class="s">&quot;focussed&quot;</span>
                     <span class="vi">@focussed = </span><span class="kc">false</span>
-                    <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;focusout&quot;</span>
+                    <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;focusout&quot;</span>
                 <span class="p">,</span> <span class="mi">10</span>
         
         <span class="nv">plural : </span><span class="o">-&gt;</span>
             <span class="nx">@itemNamePlural</span> <span class="o">?</span> <span class="nx">@itemName</span><span class="o">+</span><span class="s">&quot;s&quot;</span>
-        </pre></div></td></tr><tr id="section-39"><td class="docs"><div class="pilwrap"><a href="#section-39" class="pilcrow">&#182;</a></div><p>initializing</p>
+        </pre></div></td></tr><tr id="section-49"><td class="docs"><div class="pilwrap"><a href="#section-49" class="pilcrow">&#182;</a></div><p>initializing</p>
 </td><td class="code"><div class="highlight"><pre>        
         <span class="nv">initializeTitle: </span><span class="o">-&gt;</span> 
             <span class="nv">title = </span><span class="nx">@title</span> <span class="o">?</span> <span class="nx">@plural</span><span class="p">()</span>
+            <span class="nv">title = </span><span class="nx">title</span><span class="p">.</span><span class="nx">call</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">title</span> <span class="k">instanceof</span> <span class="nb">Function</span>
             <span class="vi">@$title = </span><span class="nx">$</span><span class="p">(</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">h1</span> <span class="p">{</span><span class="k">class</span><span class="o">:</span> <span class="s">&quot;title&quot;</span><span class="p">},</span> <span class="nx">title</span> <span class="p">)</span>
-            <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">@$title</span>
+            <span class="nx">@$title</span>
         
         <span class="nv">initializeActions: </span><span class="o">-&gt;</span>
             
@@ -411,7 +530,7 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             <span class="vi">@inlineActions = </span><span class="p">[]</span>
 
             <span class="vi">@$batchActions = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">ul</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;actions&quot;</span><span class="p">)</span>
-            </pre></div></td></tr><tr id="section-40"><td class="docs"><div class="pilwrap"><a href="#section-40" class="pilcrow">&#182;</a></div><p>populate @batchActions and @inlineActions with instance of
+            </pre></div></td></tr><tr id="section-50"><td class="docs"><div class="pilwrap"><a href="#section-50" class="pilcrow">&#182;</a></div><p>populate @batchActions and @inlineActions with instance of
 <code>Ribs.Action</code> based on @actions</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@actions</span><span class="p">,</span> <span class="p">(</span><span class="nx">actionConfig</span><span class="p">)</span> <span class="o">=&gt;</span>
                 <span class="nv">actionConfig.collection = </span><span class="nx">@collection</span>
@@ -425,30 +544,42 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
                     <span class="nx">@$batchActions</span><span class="p">.</span><span class="nx">append</span> <span class="nx">action</span><span class="p">.</span><span class="nx">el</span>
 
             <span class="k">if</span> <span class="nx">@batchActions</span><span class="p">.</span><span class="nx">length</span>
-                <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">@$batchActions</span>
                 <span class="nx">@$batchActions</span>
             <span class="k">else</span>
                 <span class="kc">null</span>
         
         <span class="nv">initializeList: </span><span class="o">-&gt;</span>
             <span class="vi">@$list = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">ul</span><span class="p">(</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;list&quot;</span><span class="p">))</span>
-            <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">@$list</span>
             <span class="nx">@$list</span>
         
-        <span class="nv">addAllItems : </span><span class="o">-&gt;</span>
-            <span class="nx">@$list</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
-            <span class="nx">@collection</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span>
-        
-        <span class="nv">addItem : </span><span class="nf">(model_instance) -&gt;</span>
-            <span class="nv">view = </span><span class="k">new</span> <span class="nx">@itemView</span><span class="p">(</span> <span class="nv">model: </span><span class="nx">model_instance</span><span class="p">,</span> <span class="nv">view: </span><span class="k">this</span> <span class="p">)</span>
-            <span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
+        <span class="nv">addItem : </span><span class="nf">(model) -&gt;</span>
+            <span class="k">if</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="o">::</span><span class="nx">isPrototypeOf</span><span class="p">(</span><span class="nx">@itemView</span><span class="o">::</span><span class="p">)</span>
+                <span class="nv">itemView = </span><span class="nx">@itemView</span>
+            <span class="k">else</span>
+                <span class="nv">itemView = </span><span class="nx">@itemView</span><span class="p">(</span><span class="nx">model</span><span class="p">)</span>
+            <span class="nv">view = </span><span class="k">new</span> <span class="nx">itemView</span><span class="p">(</span> <span class="nv">model: </span><span class="nx">model</span><span class="p">,</span> <span class="nv">view: </span><span class="k">this</span> <span class="p">)</span>
             <span class="nx">@$list</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="nx">view</span><span class="p">.</span><span class="nx">el</span><span class="p">)</span>
-            <span class="nx">view</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;select&quot;</span> <span class="k">if</span> <span class="nx">@selectedByDefault</span>
+            <span class="nx">view</span><span class="p">.</span><span class="nx">delegateEvents</span><span class="p">()</span>
+            <span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span> <span class="k">if</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span> <span class="s">&quot;:visible&quot;</span>
+            <span class="nx">@_subviews</span><span class="p">.</span><span class="nx">push</span> <span class="nx">view</span>
+            <span class="nx">view</span><span class="p">.</span><span class="nx">select</span><span class="p">()</span> <span class="k">if</span> <span class="nx">@selectedByDefault</span>
+
+        <span class="nv">addAllItems : </span><span class="o">-&gt;</span>
+            <span class="vi">@_subviews = </span><span class="p">[]</span>
+            <span class="nx">@$list</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
+            <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;deselected&quot;</span>
+            <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span>
+
+        <span class="nv">get: </span><span class="nf">(id) -&gt;</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">find</span> <span class="nx">@_subviews</span><span class="p">,</span> <span class="nf">(view) -&gt;</span>
+                <span class="nx">view</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">id</span> <span class="o">==</span> <span class="nx">id</span>
+
+        <span class="nv">render: </span><span class="o">-&gt;</span>
+            <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@_subviews</span><span class="p">,</span> <span class="nf">(view,i) -&gt;</span>
+                <span class="nx">view</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
 
         <span class="nv">initializeHeader: </span><span class="o">-&gt;</span>
             <span class="vi">@$header = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;header&quot;</span><span class="p">)</span>
-
-            <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">@$header</span>
 
             <span class="nx">unless</span> <span class="nx">@suppressToggle</span>
                 <span class="nv">toggle = </span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">input</span><span class="p">(</span><span class="nv">type: </span><span class="s">&quot;checkbox&quot;</span><span class="p">,</span> <span class="nv">tabindex: </span><span class="o">-</span><span class="mi">1</span> <span class="p">)</span>
@@ -464,16 +595,11 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
                 <span class="nv">label = </span><span class="nx">attribute</span><span class="p">.</span><span class="nx">label</span> <span class="o">?</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span>
                 <span class="nv">klass = </span><span class="nx">attribute</span><span class="p">.</span><span class="k">class</span> <span class="o">?</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span>
                 <span class="nx">@$header</span><span class="p">.</span><span class="nx">append</span> <span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span><span class="p">(</span>
-                    <span class="p">{</span><span class="k">class</span><span class="o">:</span> <span class="nx">klass</span><span class="p">,</span> <span class="s">&quot;data-sort-by&quot;</span><span class="o">:</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span><span class="p">},</span> 
+                    <span class="p">{</span><span class="k">class</span><span class="o">:</span> <span class="nx">klass</span><span class="p">,</span> <span class="s">&quot;data-sort-by&quot;</span><span class="o">:</span> <span class="p">(</span><span class="nx">attribute</span><span class="p">.</span><span class="nx">sortField</span> <span class="o">or</span> <span class="nx">attribute</span><span class="p">.</span><span class="nx">field</span><span class="p">)},</span> 
                     <span class="nx">label</span>
-                <span class="p">)</span></pre></div></td></tr><tr id="section-41"><td class="docs"><div class="pilwrap"><a href="#section-41" class="pilcrow">&#182;</a></div><p>sorting and minimizing/maximizing</p>
+                <span class="p">)</span></pre></div></td></tr><tr id="section-51"><td class="docs"><div class="pilwrap"><a href="#section-51" class="pilcrow">&#182;</a></div><p>sorting and minimizing/maximizing</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.maximize, .minimize&quot;</span><span class="p">).</span><span class="nx">click</span> <span class="o">=&gt;</span>
-                <span class="nx">@toggleVisibility</span><span class="p">()</span>
-
-            <span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by]&quot;</span><span class="p">).</span><span class="nx">click</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span>
-                <span class="nv">field = </span><span class="nx">$</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;data-sort-by&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nx">field</span><span class="o">?</span>
-                    <span class="nx">@sortCollectionBy</span> <span class="nx">field</span></pre></div></td></tr><tr id="section-42"><td class="docs"><div class="pilwrap"><a href="#section-42" class="pilcrow">&#182;</a></div><p>put arrow on default sorted by</p>
+                <span class="nx">@toggleVisibility</span><span class="p">()</span></pre></div></td></tr><tr id="section-52"><td class="docs"><div class="pilwrap"><a href="#section-52" class="pilcrow">&#182;</a></div><p>put arrow on default sorted by</p>
 </td><td class="code"><div class="highlight"><pre>            <span class="nx">@$header</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;[data-sort-by=</span><span class="si">#{</span><span class="nx">@collection</span><span class="p">.</span><span class="nx">sortingBy</span><span class="si">}</span><span class="s">]&quot;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="s">&quot; </span><span class="si">#{</span><span class="nx">@sortArrows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
 
             <span class="nx">@$header</span>
@@ -492,7 +618,6 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
 
         <span class="nv">initializeFooter: </span><span class="o">-&gt;</span>
             <span class="vi">@$footer = </span><span class="nx">$</span><span class="p">(</span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;footer&quot;</span><span class="p">)</span>
-            <span class="nx">@$el</span><span class="p">.</span><span class="nx">append</span> <span class="nx">@$footer</span>
             <span class="nx">@updateFooter</span><span class="p">()</span>
             <span class="nx">@$footer</span>
 
@@ -526,12 +651,17 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             
             <span class="k">super</span> <span class="nx">options</span>
 
-            <span class="k">if</span> <span class="nx">@collection</span><span class="o">?</span>
-                <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;selected deselected reset&quot;</span><span class="p">,</span> <span class="nx">@checkRequirements</span><span class="p">,</span> <span class="k">this</span>
-                <span class="nx">@view</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;keypressed&quot;</span><span class="p">,</span> <span class="nx">@keypressedOnView</span><span class="p">,</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">@hotkey</span><span class="o">?</span>
+            <span class="nx">@setCollection</span> <span class="nx">@collection</span> <span class="k">if</span> <span class="nx">@collection</span><span class="o">?</span>
+
+            <span class="nx">@view</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;keypressed&quot;</span><span class="p">,</span> <span class="nx">@keypressedOnView</span><span class="p">,</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">@hotkey</span><span class="o">?</span>
 
             <span class="nx">@checkRequirements</span><span class="p">()</span>
     
+        <span class="nv">setCollection: </span><span class="nf">(collection) -&gt;</span>
+            <span class="k">if</span> <span class="nx">collection</span><span class="o">?</span>
+                <span class="vi">@collection = </span><span class="nx">collection</span>
+                <span class="nx">@collection</span><span class="p">.</span><span class="kc">off</span> <span class="s">&quot;selected deselected reset&quot;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="k">this</span>
+                <span class="nx">@collection</span><span class="p">.</span><span class="kc">on</span> <span class="s">&quot;selected deselected reset&quot;</span><span class="p">,</span> <span class="nx">@checkRequirements</span><span class="p">,</span> <span class="k">this</span>
   
         <span class="nv">checkRequirements: </span><span class="o">-&gt;</span>
             <span class="nv">enable = </span><span class="nx">@allowed</span><span class="p">()</span>
@@ -556,7 +686,7 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
                 <span class="nv">allow = </span><span class="nx">r1</span> <span class="o">and</span> <span class="nx">r2</span>
     
             <span class="k">if</span> <span class="nx">allow</span> <span class="o">and</span> <span class="nx">@check</span><span class="o">?</span>
-                <span class="nv">allow = </span><span class="nx">@check</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="p">[</span><span class="nx">@collection</span><span class="p">.</span><span class="nx">selected</span><span class="p">()])</span>
+                <span class="nv">allow = </span><span class="nx">@check</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="p">[</span><span class="nx">@view</span><span class="p">.</span><span class="nx">getSelected</span><span class="p">()])</span>
     
             <span class="nx">allow</span>
     
@@ -567,15 +697,15 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
         <span class="nv">enable : </span><span class="o">-&gt;</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="s">&quot;disabled&quot;</span><span class="p">)</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s">&quot;.button&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s">&quot;tabindex&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    </pre></div></td></tr><tr id="section-43"><td class="docs"><div class="pilwrap"><a href="#section-43" class="pilcrow">&#182;</a></div><p>triggers activate on selected items</p>
+    </pre></div></td></tr><tr id="section-53"><td class="docs"><div class="pilwrap"><a href="#section-53" class="pilcrow">&#182;</a></div><p>triggers activate on selected items</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">triggerAction : </span><span class="nf">(event, listItem) -&gt;</span>
             <span class="k">if</span> <span class="o">not</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;.disabled&quot;</span><span class="p">)</span> <span class="o">and</span> <span class="nx">@allowed</span><span class="p">()</span>
-                <span class="nx">@activate</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">getSelected</span><span class="p">(),</span> <span class="nx">listItem</span><span class="p">)</span></pre></div></td></tr><tr id="section-44"><td class="docs"><div class="pilwrap"><a href="#section-44" class="pilcrow">&#182;</a></div><p>triggers activate on clicked item</p>
+                <span class="nx">@activate</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="nx">@view</span><span class="p">.</span><span class="nx">getSelected</span><span class="p">(),</span> <span class="nx">listItem</span><span class="p">)</span></pre></div></td></tr><tr id="section-54"><td class="docs"><div class="pilwrap"><a href="#section-54" class="pilcrow">&#182;</a></div><p>triggers activate on clicked item</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">triggerActionInline : </span><span class="nf">(event, listItem) -&gt;</span>
             <span class="nx">unless</span> <span class="nx">listItem</span><span class="p">.</span><span class="nx">$el</span><span class="p">.</span><span class="o">is</span> <span class="s">&quot;.disabled&quot;</span>
                 <span class="nx">@activate</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">@view</span><span class="p">,</span> <span class="p">[</span><span class="nx">listItem</span><span class="p">.</span><span class="nx">model</span><span class="p">],</span> <span class="nx">listItem</span><span class="p">)</span>
     
-        <span class="nv">keypressedHere : </span><span class="nf">(event) -&gt;</span></pre></div></td></tr><tr id="section-45"><td class="docs"><div class="pilwrap"><a href="#section-45" class="pilcrow">&#182;</a></div><p>activate on <return></p>
+        <span class="nv">keypressedHere : </span><span class="nf">(event) -&gt;</span></pre></div></td></tr><tr id="section-55"><td class="docs"><div class="pilwrap"><a href="#section-55" class="pilcrow">&#182;</a></div><p>activate on <return></p>
 </td><td class="code"><div class="highlight"><pre>            <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">which</span> <span class="o">is</span> <span class="mi">13</span>
                 <span class="nx">@triggerAction</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">false</span>
@@ -593,7 +723,7 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
         <span class="nv">render : </span><span class="o">-&gt;</span>
             <span class="nx">@$el</span><span class="p">.</span><span class="nx">html</span> <span class="nx">@drawButton</span><span class="p">()</span>
 
-        <span class="nv">drawButton: </span><span class="nf">(inline=false) -&gt;</span>
+        <span class="nv">drawButton: </span><span class="nf">(inline=false, listItem) -&gt;</span>
             <span class="k">if</span> <span class="nx">inline</span> <span class="o">or</span> <span class="o">not</span> <span class="nx">@$el</span><span class="p">.</span><span class="o">is</span><span class="p">(</span><span class="s">&quot;.disabled&quot;</span><span class="p">)</span>
                 <span class="nv">tabindex = </span><span class="mi">0</span>
             <span class="k">else</span>
@@ -601,15 +731,17 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
             <span class="nv">btn = </span><span class="nx">$</span><span class="p">.</span><span class="nx">el</span><span class="p">.</span><span class="nx">div</span> <span class="k">class</span><span class="o">:</span> <span class="s">&quot;button&quot;</span><span class="p">,</span> <span class="nv">tabindex: </span><span class="nx">tabindex</span>
             <span class="k">if</span> <span class="nx">inline</span>
                 <span class="nv">label = </span><span class="nx">@inlineLabel</span> <span class="o">?</span> <span class="nx">@label</span>
+                <span class="k">if</span> <span class="nx">listItem</span><span class="o">?</span> <span class="o">and</span> <span class="nx">label</span> <span class="k">instanceof</span> <span class="nb">Function</span>
+                    <span class="nv">label = </span><span class="nx">label</span><span class="p">.</span><span class="nx">call</span> <span class="k">this</span><span class="p">,</span> <span class="nx">listItem</span><span class="p">.</span><span class="nx">model</span>
             <span class="k">else</span>
                 <span class="nv">label = </span><span class="nx">@batchLabel</span> <span class="o">?</span> <span class="nx">@label</span>
-                <span class="k">if</span> <span class="nx">@hotkey</span><span class="o">?</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">@inline</span>
-                    <span class="nv">label = </span><span class="nx">@constructor</span><span class="p">.</span><span class="nx">highlightHotkey</span> <span class="nx">label</span><span class="p">,</span> <span class="nx">@hotkey</span>
+                <span class="nv">label = </span><span class="nx">@constructor</span><span class="p">.</span><span class="nx">highlightHotkey</span> <span class="nx">label</span><span class="p">,</span> <span class="nx">@hotkey</span> <span class="k">if</span> <span class="nx">@hotkey</span><span class="o">?</span>
+
             <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">).</span><span class="nx">html</span> <span class="nx">label</span>
             <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">).</span><span class="nx">attr</span> <span class="s">&quot;title&quot;</span><span class="p">,</span> <span class="nx">@label</span>
-            <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">)</span></pre></div></td></tr><tr id="section-46"><td class="docs"><div class="pilwrap"><a href="#section-46" class="pilcrow">&#182;</a></div><p>renders an independent (rendered and bound)</p>
+            <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">)</span></pre></div></td></tr><tr id="section-56"><td class="docs"><div class="pilwrap"><a href="#section-56" class="pilcrow">&#182;</a></div><p>renders an independent (rendered and bound)</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">renderInline: </span><span class="nf">(listItem) -&gt;</span>
-            <span class="nv">btn = </span><span class="nx">@drawButton</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+            <span class="nv">btn = </span><span class="nx">@drawButton</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="nx">listItem</span><span class="p">)</span>
             <span class="nx">btn</span><span class="p">.</span><span class="nx">addClass</span> <span class="s">&quot;inline&quot;</span>
             <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">).</span><span class="kc">on</span> <span class="s">&quot;click&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="o">=&gt;</span>
                 <span class="nx">@triggerActionInline</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">listItem</span><span class="p">)</span>
@@ -620,14 +752,13 @@ TODO: wrap this in an optionally called <code>enableKeyboardShortcuts</code> met
                     <span class="kc">false</span>
             <span class="nx">btn</span>
 
-    
         <span class="vi">@highlightHotkey : </span><span class="nf">(label, hotkey) -&gt;</span>
             <span class="nv">char = </span><span class="nx">hotkey</span>
             <span class="nv">new_label = </span><span class="nx">label</span><span class="p">.</span><span class="nx">replace</span> <span class="nx">char</span><span class="p">,</span> <span class="s">&quot;&lt;span class=&#39;hotkey&#39;&gt;&lt;strong&gt;</span><span class="si">#{</span><span class="nx">char</span><span class="si">}</span><span class="s">&lt;/strong&gt;&lt;/span&gt;&quot;</span>
             <span class="k">if</span> <span class="nx">label</span> <span class="o">is</span> <span class="nx">new_label</span>
                 <span class="nv">new_label = </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">label</span><span class="si">}</span><span class="s"> &lt;span class=&#39;hotkey&#39;&gt;[&lt;strong&gt;</span><span class="si">#{</span><span class="nx">char</span><span class="si">}</span><span class="s">&lt;/strong&gt;]&lt;/span&gt;&quot;</span>
             <span class="nx">new_label</span>
-    </pre></div></td></tr><tr id="section-47"><td class="docs"><div class="pilwrap"><a href="#section-47" class="pilcrow">&#182;</a></div><p>utility method for accessing objects with dot syntax
+    </pre></div></td></tr><tr id="section-57"><td class="docs"><div class="pilwrap"><a href="#section-57" class="pilcrow">&#182;</a></div><p>utility method for accessing objects with dot syntax
 borrowed from mustache.js</p>
 </td><td class="code"><div class="highlight"><pre>    <span class="nv">walk_context = </span><span class="nf">(name, context) -&gt;</span>
         <span class="nv">path = </span><span class="nx">name</span><span class="p">.</span><span class="nx">split</span> <span class="s">&quot;.&quot;</span>
