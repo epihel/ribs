@@ -4,8 +4,8 @@ coffee = require 'coffee-script'
 
 option '-u', '--uglify', 'uglify js output'
 
-task 'build', 'compile ribs.coffee and uglify (optionally)', (options) ->
-
+task 'build', 'compile rib.js from ribs.coffee', (options) ->
+  
     cs = (fs.readFileSync 'ribs.coffee').toString()
     js = coffee.compile cs
     outfile = "ribs.js"
