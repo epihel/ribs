@@ -630,10 +630,10 @@
             var a, b;
             a = walk_context(field, ma.toJSON());
             b = walk_context(field, mb.toJSON());
-            if (a instanceof String) {
+            if ((a != null ? a.toLowerCase : void 0) != null) {
               a = a.toLowerCase();
             }
-            if (b instanceof String) {
+            if ((b != null ? b.toLowerCase : void 0) != null) {
               b = b.toLowerCase();
             }
             if (a === b) {
