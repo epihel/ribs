@@ -381,18 +381,20 @@
         var editField;
         if (this.options.editable) {
           if (this.options.editable instanceof Function) {
-            editField = $(this.options.editable(this.renderableValue(true), this.model));
+            editField = $(this.options.editable.call(this, this.renderableValue(true), this.model));
           } else {
             editField = $($.el.input({
               type: 'text',
               value: this.renderableValue(true)
             }));
           }
-          editField.addClass("editableField");
-          this.$el.html(editField);
-          this.delegateEvents();
-          editField.focus();
-          this.model.editing = true;
+          if (editField) {
+            editField.addClass("editableField");
+            this.$el.html(editField);
+            this.delegateEvents();
+            editField.focus();
+            this.model.editing = true;
+          }
         }
         return false;
       };
