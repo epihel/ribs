@@ -592,8 +592,8 @@ the old cell view back</p>
         <span class="nv">addAllItems : </span><span class="o">-&gt;</span>
             <span class="vi">@_subviews = </span><span class="p">[]</span>
             <span class="nx">@$list</span><span class="p">.</span><span class="nx">empty</span><span class="p">()</span>
-            <span class="nx">@collection</span><span class="p">.</span><span class="nx">trigger</span> <span class="s">&quot;deselected&quot;</span>
-            <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span></pre></div></td></tr><tr id="section-54"><td class="docs"><div class="pilwrap"><a href="#section-54" class="pilcrow">&#182;</a></div><p>Gets list item view by model ID</p>
+            <span class="nx">@collection</span><span class="o">?</span><span class="p">.</span><span class="nx">each</span> <span class="nx">@addItem</span><span class="p">,</span> <span class="k">this</span>
+            <span class="nx">@trigger</span> <span class="s">&quot;rendered&quot;</span></pre></div></td></tr><tr id="section-54"><td class="docs"><div class="pilwrap"><a href="#section-54" class="pilcrow">&#182;</a></div><p>Gets list item view by model ID</p>
 </td><td class="code"><div class="highlight"><pre>        <span class="nv">get: </span><span class="nf">(id) -&gt;</span>
             <span class="nx">_</span><span class="p">.</span><span class="nx">find</span> <span class="nx">@_subviews</span><span class="p">,</span> <span class="nf">(view) -&gt;</span>
                 <span class="nx">view</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">id</span> <span class="o">==</span> <span class="nx">id</span></pre></div></td></tr><tr id="section-55"><td class="docs"><div class="pilwrap"><a href="#section-55" class="pilcrow">&#182;</a></div><p>Gets list item view by CID</p>

@@ -816,8 +816,10 @@
         var _ref;
         this._subviews = [];
         this.$list.empty();
-        this.collection.trigger("deselected");
-        return (_ref = this.collection) != null ? _ref.each(this.addItem, this) : void 0;
+        if ((_ref = this.collection) != null) {
+          _ref.each(this.addItem, this);
+        }
+        return this.trigger("rendered");
       };
 
       List.prototype.get = function(id) {
